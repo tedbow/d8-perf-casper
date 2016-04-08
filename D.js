@@ -1,4 +1,7 @@
-var casper = require('casper').create();
+var casper = require('casper').create({
+  verbose: true,
+  logLevel: "debug"
+});
 var helpy = require('./dohelpy')
 
 casper.start(helpy.buildUrl(''), helpy.login('admin', casper.cli.get(0)));

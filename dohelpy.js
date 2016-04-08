@@ -107,17 +107,18 @@ var helpy = {
   },
 
   getSiteUrl : function () {
-    return casper.cli.has('uri') ? casper.cli.get('uri') : 'http://drupalvm.dev';
+    return casper.cli.has('uri') ? casper.cli.get('uri') : 'http://wps-testing.dev';
   },
 
   buildUrl : function (path, options) {
     var urlBase = this.getSiteUrl();
+
     var query = [];
 
     if (!path) {
       path = '/';
     }
-
+    //return urlBase + path;
     query.push('url=' + path);
 
     if (!options) {
@@ -130,7 +131,10 @@ var helpy = {
     if (!options.xhprof_on) {
       query.push('disable_xhprof=1');
     }
-
+    /*else {
+      query.push('disable_xhprof=0');
+    }*/
+    //return urlBase + path + "?" + query.join("&");
     return urlBase + '/index-perf.php' + "?" + query.join("&");
   }
 };
