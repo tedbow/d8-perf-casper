@@ -1,5 +1,12 @@
 ## Why?
-Please see https://www.drupal.org/node/2497185
+Multiversion Performance Testing
+
+@todo Update this README
+
+For now a couple paths are hardcoded
+Numbers and aliases must be updated via 
+
+
 
 ## Requirements
 
@@ -11,17 +18,17 @@ Please see https://www.drupal.org/node/2497185
 
 Download and install [xhprof-kit](https://github.com/LionsAd/xhprof-kit). Follow the setup instructions to ensure the symlinks are in the proper places for your drupal installation. This will create an `index-perf.php` file which dohelpy.buildUrl is expecting to be there on requests it profiles.
 
-## Calling Stuff
-Assuming you have a drush alias to whatever you're trying to run this against:
+## Calling Stuff @todo Update Section
+Assuming you have the same alias for both drush(w/o @) and drupal console alias to whatever you're trying to run this against:
 
 ```bash
-./run_scenario.sh A @alias
+./testperformance.sh {alias} {entities} {revisions} 
 ```
-## Docker Integration
+## Docker Integration @todo Update Section
 
 The `Dockerfile` provides a basic set of instructions to build a docker container which contains node, casperjs, and drush.
 
-### Building the container
+### Building the container @todo Update Section
 
 The scripts assume you'll be using a drush alias in order to perform the actions against the D8 site, but it needs those to be inside the container.
 
@@ -29,17 +36,12 @@ Place any required drush alias files in the drush folder before building the con
 
 Run `docker build -t "cthos/d8-perf-casper" .` to then build the container.
 
-### Running the container
+### Running the container @todo Update Section
 
 `docker run -i -t cthos/d8-perf-casper A @drupalvm.drupalvm.dev`
 
-#### If you're using drupalvm
+#### If you're using drupalvm @todo Update Section
 
 You might need to mount the insecure_private_key as well as add the virtual host to the hosts file (assuming it's not accessible from the web).
 
 `docker run --add-host="drupalvm.dev:192.168.88.88" -v /Users/cthos/.vagrant.d:/root/.vagrant.d -i -t cthos/d8-perf-casper A @drupalvm.drupalvm.dev`
-
-
-## TODO
-
-* Scenario A1 does not present you a link because it's not rendering a page to capture. It'll be the most recent run in `/xhprof-kit/xhprof/xhprof_html/index.php`

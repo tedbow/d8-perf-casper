@@ -29,37 +29,5 @@ else {
 helpy.loadAndLog(casper,'load-test-nodes', xhprof, login, modules, cacheMode);
 helpy.loadAndLog(casper,'load-test-users', xhprof, login, modules, cacheMode);
 helpy.loadAndLog(casper,'load-test-terms', xhprof, login, modules, cacheMode);
-/*
-casper.thenOpen(helpy.buildUrl('load-test-nodes', {
-  "xhprof_on" : xhprof
-}), function () {
-  this.echo(this.getTitle());
-
-});
-casper.thenOpen(helpy.buildUrl('load-test-users', {
-  "xhprof_on" : xhprof
-}), function () {
-  this.echo(this.getTitle());
-
-
-});
-casper.thenOpen(helpy.buildUrl('load-test-terms', {
-  "xhprof_on" : xhprof
-}), function () {
-  this.echo(this.getTitle());
-
-
-});
-
-casper.thenOpen('http://xhprof-kit.wps-testing.dev', function (response) {
-  nextLink = helpy.findXHProfLink.call(this);
-  this.echo("asfd;" +nextLink);
-  var results = {};
-  this.thenOpen(nextLink, function () {
-    results = helpy.getFunctionsAndMemoryFromXHProf.call(this);
-  });
-  console.log(results.memoryUsed);
-});
-*/
 casper.run();
 

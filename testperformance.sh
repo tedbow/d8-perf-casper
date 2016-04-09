@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
+if [ "$#" -ne 3 ]
+then
+  echo "Usage: 1st argument is alias without @ for both drush and drupal console"
+  echo "Usage: 2nd arguments is number of entities. 3rd argument is number of revisions"
+  exit 1
+fi
+
 XHPROF_DIR='/var/tmp/xhprof'
-SITE_ALIAS='d8wps.dev'
+SITE_ALIAS=$1
 DRUSH="drush @${SITE_ALIAS}"
 DCONSOLE="drupal --target=${SITE_ALIAS}"
-ENTITY_CNT=1000
-REVISIONS_CNT=20
+ENTITY_CNT=$2
+REVISIONS_CNT=$3
 dt=`date '+%Y_%m_%d-%H_%M_%S'`
 
 $DRUSH si -y --account-pass=pass
