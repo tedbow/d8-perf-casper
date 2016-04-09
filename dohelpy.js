@@ -1,32 +1,64 @@
+var fs = require('fs');
 var helpy = {
   disabledRedirects : [],
   stopIds : [],
-  findXHProfLink : function () {
-    var link = this.evaluate(function () {
-      var xhprofLink = document.querySelector('a#xhprof-profiler-output');
-      return xhprofLink.href;
+
+  loadAndLog: function (casper,path, xhprof, login, modules) {
+    casper.thenOpen(helpy.buildUrl('load-test-nodes', {
+      "xhprof_on" : xhprof
+    }), function () {
+      this.echo(this.getTitle());
+
     });
+    casper.thenOpen('http://xhprof-kit.wps-testing.dev', function (response) {
+      nextLink = helpy.findXHProfLink.call(this);
+      this.echo("asfd;" +nextLink);
+      var results = {};
+      this.thenOpen(nextLink, function () {
+        results = helpy.getFunctionsAndMemoryFromXHProf.call(this);
+        console.log('mem:' + results.memoryUsed + "--- " + path);
+      });
 
-    if (link) {
-      this.echo(link);
-    }
+    });
+  },
+  findXHProfLink : function () {
 
-    return link;
+    //var link;
+    casper.thenOpen('http://xhprof-kit.wps-testing.dev', function () {
+      this.echo('t' + this.getTitle());
+      link = casper.evaluate(function() {
+        return document.querySelectorAll("ul li a");
+      });
+     // var link = document.querySelectorAll('a')[0].href;
+
+
+    });
+    link = casper.evaluate(function() {
+      return document.querySelectorAll("a");
+    });
+    this.echo(link[0].href);
+    return link[0].href;
+    return 'eee';//link[0].href;
   },
 
   getFunctionsAndMemoryFromXHProf : function () {
     var functionCalls = this.evaluate(function () {
       var functionCalls = document.querySelectorAll('table td')[7];
-      return functionCalls.innerHTML;
+      return functionCalls.innerHTML.replace(/\D/g,'');
     });
 
     var memoryUsed = this.evaluate(function () {
       var memory = document.querySelectorAll('table td')[5];
-      return memory.innerHTML;
+      return memory.innerHTML.replace(/\D/g,'');
+    });
+    var timeWall = this.evaluate(function () {
+      var time = document.querySelectorAll('table td')[1];
+      return time.innerHTML.replace(/\D/g,'');
     });
 
     this.echo("Function calls: " + functionCalls);
     this.echo("Memory Used: " + memoryUsed);
+    this.echo("Time wall: " + timeWall);
 
     var nextLink = this.getCurrentUrl();
     nextLink += "&symbol=PDOStatement::execute";
@@ -35,9 +67,17 @@ var helpy = {
       helpy.getPDOExecuteFromXHProf.call(this);
     });
 
+    var fs = require('fs');
+
+    try {
+      fs.write('message.txt', memoryUsed + "\n", 'a');
+    } catch(e) {
+      console.log(e);
+    }
     return {
       "memoryUsed" : memoryUsed,
-      "functionCalls" : functionCalls
+      "functionCalls" : functionCalls,
+      "timewall" : timeWall
     }
   },
 
@@ -136,6 +176,15 @@ var helpy = {
     }*/
     //return urlBase + path + "?" + query.join("&");
     return urlBase + '/index-perf.php' + "?" + query.join("&");
+  },
+  writeToFile: function (text){
+    var fs = require('fs');
+    try {
+      fs.write('message.txt', helpy.findXHProfLink.call(this) + "\n", 'a');
+    } catch(e) {
+      console.log(e);
+    }
+
   }
 };
 

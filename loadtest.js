@@ -3,16 +3,28 @@
  */
 
 var casper = require('casper').create();
+/*var casper = require('casper').create({
+  verbose: true,
+  logLevel: "debug"
+});*/
 var helpy = require('./dohelpy');
 var xhprof = casper.cli.get('xhprof');
-if (casper.cli.get('login')) {
+var login = casper.cli.get('login');
+var modules = casper.cli.get('modules');
+if (!modules) {
+  modules = '';
+}
+if (login) {
   casper.echo('Logging in');
   casper.start(helpy.buildUrl('user/login'), helpy.login('admin', 'pass'));
 }
 else {
+  login = 0;
   casper.start(helpy.buildUrl(''), function () {});
 }
 
+helpy.loadAndLog(casper,'load-test-nodes', xhprof, login, modules);
+/*
 casper.thenOpen(helpy.buildUrl('load-test-nodes', {
   "xhprof_on" : xhprof
 }), function () {
@@ -24,21 +36,24 @@ casper.thenOpen(helpy.buildUrl('load-test-users', {
 }), function () {
   this.echo(this.getTitle());
 
+
 });
 casper.thenOpen(helpy.buildUrl('load-test-terms', {
   "xhprof_on" : xhprof
 }), function () {
   this.echo(this.getTitle());
 
+
 });
-/*
-casper.thenOpen(helpy.buildUrl('', {
-  "xhprof_on" : "1"
-}), function (response) {
+
+casper.thenOpen('http://xhprof-kit.wps-testing.dev', function (response) {
   nextLink = helpy.findXHProfLink.call(this);
+  this.echo("asfd;" +nextLink);
+  var results = {};
   this.thenOpen(nextLink, function () {
-    helpy.getFunctionsAndMemoryFromXHProf.call(this);
+    results = helpy.getFunctionsAndMemoryFromXHProf.call(this);
   });
+  console.log(results.memoryUsed);
 });
 */
 casper.run();
