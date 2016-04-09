@@ -4,8 +4,8 @@ var helpy = {
   disabledRedirects : [],
   stopIds : [],
 
-  loadAndLog: function (casper,path, xhprof, login, modules) {
-    casper.thenOpen(helpy.buildUrl('load-test-nodes', {
+  loadAndLog: function (casper,path, xhprof, login, modules, cacheMode) {
+    casper.thenOpen(helpy.buildUrl(path, {
       "xhprof_on" : xhprof
     }), function () {
       this.echo(this.getTitle());
@@ -15,18 +15,30 @@ var helpy = {
 
       casper.thenOpen('http://xhprof-kit.wps-testing.dev', function (response) {
         nextLink = helpy.findXHProfLink.call(this);
-        this.echo("asfd;" +nextLink);
+       var runNumber = helpy.getRunNumber(nextLink);
+       // var runNumber = 2;
         var results = {};
         casper.thenOpen(nextLink, function () {
           results = helpy.getFunctionsAndMemoryFromXHProf.call(this);
-          casper.echo('xh');
-          helpy.writeToFile(path,login, modules, results);
+          helpy.writeToFile(runNumber, path,login, modules, cacheMode, results);
 
         });
 
       });
     }
 
+  },
+  getRunNumber : function (nextLink) {
+    var qs = nextLink.split("?")[1];
+    var parts = qs.split("&");
+    for (var i = 0; i < parts.length; i++) {
+      var part = parts[i];
+      var keyValue = part.split("=");
+      if (keyValue[0] == 'run') {
+        return keyValue[1];
+      }
+    }
+    return 'unknown';
   },
   findXHProfLink : function () {
 
@@ -73,13 +85,6 @@ var helpy = {
       helpy.getPDOExecuteFromXHProf.call(this);
     });
 
-    var fs = require('fs');
-
-    try {
-      fs.write('message.txt', memoryUsed + "\n", 'a');
-    } catch(e) {
-      console.log(e);
-    }
     return {
       "memoryUsed" : memoryUsed,
       "functionCalls" : functionCalls,
@@ -183,15 +188,20 @@ var helpy = {
     //return urlBase + path + "?" + query.join("&");
     return urlBase + '/index-perf.php' + "?" + query.join("&");
   },
-  writeToFile: function (path,login, modules, results){
-    casper.echo("l-fff");
-    var line = path + "," + login + ","  + modules;
-    for(var key in results) {
-      line += "," + results[key];
+  writeToFile: function (runNumber, path,login, modules, cacheMode, results){
+    if (login) {
+      login = "loggedid";
     }
-    casper.echo("l-" + line);
+    else {
+      login = "anonymous";
+    }
+    var lineItems = [runNumber, path,login, modules, cacheMode];
+    for(var key in results) {
+      lineItems.push(results[key]);
+    }
+    var line = lineItems.join(",") + "\n";
     try {
-      fs.write('output-' + dt_str + '.txt', line + "\n", 'w');
+      fs.write('output-' + dt_str + '.txt', line , 'a');
     } catch(e) {
       console.log(e);
     }
