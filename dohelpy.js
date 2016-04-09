@@ -1,4 +1,5 @@
 var fs = require('fs');
+
 var helpy = {
   disabledRedirects : [],
   stopIds : [],
@@ -10,16 +11,22 @@ var helpy = {
       this.echo(this.getTitle());
 
     });
-    casper.thenOpen('http://xhprof-kit.wps-testing.dev', function (response) {
-      nextLink = helpy.findXHProfLink.call(this);
-      this.echo("asfd;" +nextLink);
-      var results = {};
-      this.thenOpen(nextLink, function () {
-        results = helpy.getFunctionsAndMemoryFromXHProf.call(this);
-        console.log('mem:' + results.memoryUsed + "--- " + path);
-      });
+    if (xhprof) {
 
-    });
+      casper.thenOpen('http://xhprof-kit.wps-testing.dev', function (response) {
+        nextLink = helpy.findXHProfLink.call(this);
+        this.echo("asfd;" +nextLink);
+        var results = {};
+        casper.thenOpen(nextLink, function () {
+          results = helpy.getFunctionsAndMemoryFromXHProf.call(this);
+          casper.echo('xh');
+          helpy.writeToFile(path,login, modules, results);
+
+        });
+
+      });
+    }
+
   },
   findXHProfLink : function () {
 
@@ -38,7 +45,6 @@ var helpy = {
     });
     this.echo(link[0].href);
     return link[0].href;
-    return 'eee';//link[0].href;
   },
 
   getFunctionsAndMemoryFromXHProf : function () {
@@ -177,10 +183,15 @@ var helpy = {
     //return urlBase + path + "?" + query.join("&");
     return urlBase + '/index-perf.php' + "?" + query.join("&");
   },
-  writeToFile: function (text){
-    var fs = require('fs');
+  writeToFile: function (path,login, modules, results){
+    casper.echo("l-fff");
+    var line = path + "," + login + ","  + modules;
+    for(var key in results) {
+      line += "," + results[key];
+    }
+    casper.echo("l-" + line);
     try {
-      fs.write('message.txt', helpy.findXHProfLink.call(this) + "\n", 'a');
+      fs.write('output-' + dt_str + '.txt', line + "\n", 'w');
     } catch(e) {
       console.log(e);
     }

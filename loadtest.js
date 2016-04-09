@@ -11,6 +11,9 @@ var helpy = require('./dohelpy');
 var xhprof = casper.cli.get('xhprof');
 var login = casper.cli.get('login');
 var modules = casper.cli.get('modules');
+var dt_str = casper.cli.get('dt');
+casper.echo('Logging in');
+
 if (!modules) {
   modules = '';
 }
