@@ -24,10 +24,11 @@ $DRUSH gent tags $ENTITY_CNT
 $DRUSH genc $ENTITY_CNT --types=page
 $DCONSOLE performance_tester:revisions node --count $REVISIONS_CNT
 
-# Make first request and don't record results
 casperjs loadtest.js --xhprof=1 --dt=${dt} --modules=core --cache=cold
 casperjs loadtest.js --xhprof=1 --dt=${dt} --modules=core --cache=warm
 
+#Clear cache for cold cache test
+$DRUSH CR
 casperjs loadtest.js --xhprof=1 --login=1 --dt=${dt} --modules=core --cache=cold
 casperjs loadtest.js --xhprof=1 --login=1 --dt=${dt}  --modules=core --cache=warm
 ##$DCONSOLE xhprof_csv:summary with_mv.csv
@@ -48,10 +49,11 @@ $DCONSOLE performance_tester:revisions node --count $REVISIONS_CNT
 $DCONSOLE performance_tester:revisions taxonomy_term --count $REVISIONS_CNT
 $DCONSOLE performance_tester:revisions user --count $REVISIONS_CNT
 
-# Make first request and don't record results
 casperjs loadtest.js --xhprof=1 --dt=${dt} --modules=multiversion --cache=cold
 casperjs loadtest.js --xhprof=1 --dt=${dt} --modules=multiversion --cache=warm
 
+#Clear cache for cold cache test
+$DRUSH CR
 casperjs loadtest.js --xhprof=1 --login=1 --dt=${dt} --modules=multiversion --cache=cold
 casperjs loadtest.js --xhprof=1 --login=1 --dt=${dt} --modules=multiversion --cache=warm
 
