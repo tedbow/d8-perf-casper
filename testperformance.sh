@@ -3,8 +3,8 @@ XHPROF_DIR='/var/tmp/xhprof'
 SITE_ALIAS='d8wps.dev'
 DRUSH="drush @${SITE_ALIAS}"
 DCONSOLE="drupal --target=${SITE_ALIAS}"
-ENTITY_CNT=10000
-REVISIONS_CNT=200
+ENTITY_CNT=1000
+REVISIONS_CNT=20
 dt=`date '+%Y_%m_%d-%H_%M_%S'`
 
 $DRUSH si -y --account-pass=pass
@@ -15,6 +15,7 @@ $DCONSOLE module:install devel devel_generate -y
 $DRUSH genu $ENTITY_CNT
 $DRUSH gent tags $ENTITY_CNT
 $DRUSH genc $ENTITY_CNT --types=page
+$DCONSOLE performance_tester:revisions node --count $REVISIONS_CNT
 
 # Make first request and don't record results
 casperjs loadtest.js --xhprof=0
