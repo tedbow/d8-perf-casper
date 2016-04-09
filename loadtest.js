@@ -13,7 +13,6 @@ var login = casper.cli.get('login');
 var modules = casper.cli.get('modules');
 var cacheMode = casper.cli.get('cache');
 var dt_str = casper.cli.get('dt');
-casper.echo('Logging in');
 
 if (!modules) {
   modules = '';
@@ -28,8 +27,8 @@ else {
 }
 
 helpy.loadAndLog(casper,'load-test-nodes', xhprof, login, modules, cacheMode);
-//helpy.loadAndLog(casper,'load-test-users', xhprof, login, modules, cacheMode);
-//helpy.loadAndLog(casper,'load-test-terms', xhprof, login, modules, cacheMode);
+helpy.loadAndLog(casper,'load-test-users', xhprof, login, modules, cacheMode);
+helpy.loadAndLog(casper,'load-test-terms', xhprof, login, modules, cacheMode);
 /*
 casper.thenOpen(helpy.buildUrl('load-test-nodes', {
   "xhprof_on" : xhprof

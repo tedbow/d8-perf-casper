@@ -15,18 +15,26 @@ var helpy = {
 
       casper.thenOpen('http://xhprof-kit.wps-testing.dev', function (response) {
         nextLink = helpy.findXHProfLink.call(this);
-       var runNumber = helpy.getRunNumber(nextLink);
+        var runNumber = helpy.getRunNumber(nextLink);
+        //
        // var runNumber = 2;
         var results = {};
         casper.thenOpen(nextLink, function () {
           results = helpy.getFunctionsAndMemoryFromXHProf.call(this);
+
           helpy.writeToFile(runNumber, path,login, modules, cacheMode, results);
+          helpy.copyFile(runNumber);
 
         });
 
       });
     }
 
+  },
+  copyFile : function (runNumber) {
+    var source = "/var/tmp/xhprof/" + runNumber + ".drupal-perf.xhprof";
+    var dest = "xhprof-files/" + runNumber + ".drupal-perf.xhprof";
+    fs.copy(source, dest);
   },
   getRunNumber : function (nextLink) {
     var qs = nextLink.split("?")[1];
@@ -44,7 +52,6 @@ var helpy = {
 
     //var link;
     casper.thenOpen('http://xhprof-kit.wps-testing.dev', function () {
-      this.echo('t' + this.getTitle());
       link = casper.evaluate(function() {
         return document.querySelectorAll("ul li a");
       });
@@ -55,7 +62,7 @@ var helpy = {
     link = casper.evaluate(function() {
       return document.querySelectorAll("a");
     });
-    this.echo(link[0].href);
+    //this.echo(link[0].href);
     return link[0].href;
   },
 
@@ -74,9 +81,9 @@ var helpy = {
       return time.innerHTML.replace(/\D/g,'');
     });
 
-    this.echo("Function calls: " + functionCalls);
-    this.echo("Memory Used: " + memoryUsed);
-    this.echo("Time wall: " + timeWall);
+    //this.echo("Function calls: " + functionCalls);
+    //this.echo("Memory Used: " + memoryUsed);
+    //this.echo("Time wall: " + timeWall);
 
     var nextLink = this.getCurrentUrl();
     nextLink += "&symbol=PDOStatement::execute";
@@ -98,7 +105,7 @@ var helpy = {
       return PDOCalls.innerHTML;
     });
 
-    this.echo("PDO calls: " + PDOCalls);
+    //this.echo("PDO calls: " + PDOCalls);
   },
 
   adjustFormUrls : function () {
@@ -188,20 +195,30 @@ var helpy = {
     //return urlBase + path + "?" + query.join("&");
     return urlBase + '/index-perf.php' + "?" + query.join("&");
   },
+  /**
+   *
+   * @param runNumber
+   * @param path
+   * @param login
+   * @param modules
+   * @param cacheMode
+   * @param results
+   *  keys = "memoryUsed","functionCalls","timewall"
+   */
   writeToFile: function (runNumber, path,login, modules, cacheMode, results){
     if (login) {
-      login = "loggedid";
+      login = "loggedin";
     }
     else {
       login = "anonymous";
     }
     var lineItems = [runNumber, path,login, modules, cacheMode];
-    for(var key in results) {
-      lineItems.push(results[key]);
-    }
+    lineItems.push(results.timewall);
+    lineItems.push(results.memoryUsed);
+    lineItems.push(results.functionCalls);
     var line = lineItems.join(",") + "\n";
     try {
-      fs.write('output-' + dt_str + '.txt', line , 'a');
+      fs.write('results-files/results-' + dt_str + '.csv', line , 'a');
     } catch(e) {
       console.log(e);
     }

@@ -3,12 +3,9 @@ XHPROF_DIR='/var/tmp/xhprof'
 SITE_ALIAS='d8wps.dev'
 DRUSH="drush @${SITE_ALIAS}"
 DCONSOLE="drupal --target=${SITE_ALIAS}"
-ENTITY_CNT=10
+ENTITY_CNT=1000
 REVISIONS_CNT=20
 dt=`date '+%Y_%m_%d-%H_%M_%S'`
-
-casperjs loadtest.js --xhprof=1 --dt=${dt} --modules=core --cache=cold
-exit
 
 $DRUSH si -y --account-pass=pass
 $DCONSOLE module:install performance_tester -y
