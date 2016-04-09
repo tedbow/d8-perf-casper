@@ -12,6 +12,7 @@ Numbers and aliases must be updated via
 
 * [CasperJS](http://casperjs.readthedocs.org/en/latest/installation.html) [On OSX, install from Git or NPM, not Homebrew](https://www.drupal.org/node/2497185#comment-10206465).
 * [xhprof-kit](https://github.com/LionsAd/xhprof-kit)
+* [Performance Tester](https://github.com/tedbow/performance_tester) - Must be available on target site
 * Drupal 8 environment of your choosing.
 
 ## Configuration
