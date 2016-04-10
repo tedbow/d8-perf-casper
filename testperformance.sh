@@ -27,8 +27,13 @@ $DCONSOLE module:install devel devel_generate -y
 $DRUSH genu $ENTITY_CNT
 $DRUSH gent tags $ENTITY_CNT
 $DRUSH genc $ENTITY_CNT --types=page
+# Uninstall unneeded modules after generation
+$DCONSOLE module:uninstall devel  -y
+$DCONSOLE module:uninstall devel_generate  -y
 # Create revisions for Nodes. Other entity types not supported without Multiversion
 $DCONSOLE performance_tester:revisions node --count $REVISIONS_CNT
+# Uninstall unneeded modules after generation
+$DCONSOLE module:uninstall performance_tester  -y
 
 # Make requests 2x logged out. 1 cold cache. 1 warm cache
 casperjs loadtest.js --xhprof=1 --dt=${dt} --modules=core --cache=cold
@@ -50,10 +55,15 @@ $DCONSOLE module:install devel devel_generate -y
 $DRUSH genu $ENTITY_CNT
 $DRUSH gent tags $ENTITY_CNT
 $DRUSH genc $ENTITY_CNT --types=page
+# Uninstall unneeded modules after generation
+$DCONSOLE module:uninstall devel  -y
+$DCONSOLE module:uninstall devel_generate  -y
 # Create Revisions
 $DCONSOLE performance_tester:revisions node --count $REVISIONS_CNT
 $DCONSOLE performance_tester:revisions taxonomy_term --count $REVISIONS_CNT
 $DCONSOLE performance_tester:revisions user --count $REVISIONS_CNT
+# Uninstall unneeded modules after revisions
+$DCONSOLE module:uninstall performance_tester  -y
 
 # Make requests 2x logged out. 1 cold cache. 1 warm cache
 casperjs loadtest.js --xhprof=1 --dt=${dt} --modules=multiversion --cache=cold
