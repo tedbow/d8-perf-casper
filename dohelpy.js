@@ -4,7 +4,7 @@ var helpy = {
   disabledRedirects : [],
   stopIds : [],
 
-  loadAndLog: function (casper,path, xhprof, login, modules, cacheMode) {
+  loadAndLog: function (casper,path, xhprof, login, csv_extra) {
     casper.thenOpen(helpy.buildUrl(path, {
       "xhprof_on" : xhprof
     }), function () {
@@ -22,7 +22,7 @@ var helpy = {
         casper.thenOpen(nextLink, function () {
           results = helpy.getFunctionsAndMemoryFromXHProf.call(this);
 
-          helpy.writeToFile(runNumber, path,login, modules, cacheMode, results);
+          helpy.writeToFile(runNumber, path,login, csv_extra, results);
           helpy.copyFile(runNumber);
 
         });
@@ -155,13 +155,37 @@ var helpy = {
     });
   },
 
-  login : function (name, pass) {
-    return function () {
-      this.fill('form[id="user-login-form"]', {
+  login : function (casper, name, pass) {
+    casper.echo('bo');
+    casper.start(this.buildUrl('user/login'),function () {
+      console.log('l2a');
+      casper.echo('l2' + casper.getTitle());
+
+    });
+
+    return;
+
+      console.log('l2');
+    //casper.echo("l2.2");
+    console.log(this.getTitle());
+      casper.fill('#user-login-form', {
         'name' : name,
         'pass' : pass // TODO: Config and shit?
       }, true);
-    }
+      console.log(casper.getTitle());
+      console.log('l3');
+      var loginLinks = casper.evaluate(function () {
+        return document.querySelectorAll('a[href="/user/login"]');
+      });
+      console.log('l4');
+      if (loginLinks.length > 0) {
+        console.log('login boo');
+        throw new Error("login link still found")
+      }
+      else {
+        console.log('login cool');
+      }
+
   },
 
   getSiteUrl : function () {
@@ -193,6 +217,7 @@ var helpy = {
       query.push('disable_xhprof=0');
     }*/
     //return urlBase + path + "?" + query.join("&");
+    console.log(urlBase + '/index-perf.php' + "?" + query.join("&"));
     return urlBase + '/index-perf.php' + "?" + query.join("&");
   },
   /**
@@ -200,19 +225,18 @@ var helpy = {
    * @param runNumber
    * @param path
    * @param login
-   * @param modules
-   * @param cacheMode
+   * @param csv_extra
    * @param results
    *  keys = "memoryUsed","functionCalls","timewall"
    */
-  writeToFile: function (runNumber, path,login, modules, cacheMode, results){
+  writeToFile: function (runNumber, path,login, csv_extra, results){
     if (login) {
       login = "loggedin";
     }
     else {
       login = "anonymous";
     }
-    var lineItems = [runNumber, path,login, modules, cacheMode];
+    var lineItems = [csv_extra, runNumber, path, login];
     lineItems.push(results.timewall);
     lineItems.push(results.memoryUsed);
     lineItems.push(results.functionCalls);
