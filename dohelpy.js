@@ -4,13 +4,22 @@ var helpy = {
   disabledRedirects : [],
   stopIds : [],
 
-  loadAndLog: function (casper,path, xhprof, login, csv_extra) {
+  loadAndLog: function (casper, path, xhprof, login, csv_extra) {
     casper.thenOpen(helpy.buildUrl(path, {
       "xhprof_on" : xhprof
-    }), function () {
-      this.echo(this.getTitle());
+    }));
 
+    casper.then(function () {
+      var loggedStatus = "Anonymous - ";
+      if (helpy.isLoggedin(casper)) {
+        loggedStatus = "Logged in - ";
+      }
+      casper.echo(loggedStatus + casper.getTitle());
+
+      //casper.echo(this.getTitle());
     });
+
+
     if (xhprof) {
 
       casper.thenOpen('http://xhprof-kit.wps-testing.dev', function (response) {
@@ -24,7 +33,6 @@ var helpy = {
 
           helpy.writeToFile(runNumber, path,login, csv_extra, results);
           helpy.copyFile(runNumber);
-
         });
 
       });
@@ -156,36 +164,30 @@ var helpy = {
   },
 
   login : function (casper, name, pass) {
-    casper.echo('bo');
-    casper.start(this.buildUrl('user/login'),function () {
-      console.log('l2a');
-      casper.echo('l2' + casper.getTitle());
-
-    });
-
-    return;
-
-      console.log('l2');
-    //casper.echo("l2.2");
-    console.log(this.getTitle());
+    casper.start(this.buildUrl('user/login'));
+    casper.then(function () {
       casper.fill('#user-login-form', {
         'name' : name,
         'pass' : pass // TODO: Config and shit?
       }, true);
-      console.log(casper.getTitle());
-      console.log('l3');
-      var loginLinks = casper.evaluate(function () {
-        return document.querySelectorAll('a[href="/user/login"]');
-      });
-      console.log('l4');
-      if (loginLinks.length > 0) {
-        console.log('login boo');
-        throw new Error("login link still found")
+    });
+    casper.then(function () {
+      if (!helpy.isLoggedin(casper)) {
+          console.log('Login unsuccessful');
+          throw new Error("login link still found")
       }
       else {
-        console.log('login cool');
+        console.log('Login successful');
       }
+    });
 
+  },
+
+  isLoggedin : function (casper) {
+    var loginLinks = casper.evaluate(function () {
+      return document.querySelectorAll('a[href="/user/login"]');
+    });
+    return  loginLinks.length == 0;
   },
 
   getSiteUrl : function () {
@@ -217,7 +219,6 @@ var helpy = {
       query.push('disable_xhprof=0');
     }*/
     //return urlBase + path + "?" + query.join("&");
-    console.log(urlBase + '/index-perf.php' + "?" + query.join("&"));
     return urlBase + '/index-perf.php' + "?" + query.join("&");
   },
   /**
