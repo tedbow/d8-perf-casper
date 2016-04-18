@@ -20,6 +20,8 @@ ENTITY_CNT=$2
 REVISIONS_CNT=$3
 REQUEST_CNT=$4
 dt=`date '+%Y_%m_%d-%H_%M_%S'`
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 
 # Test 1. Drupal Core
 $DRUSH si -y --account-pass=pass
@@ -36,6 +38,9 @@ $DCONSOLE module:uninstall devel_generate  -y
 $DCONSOLE performance_tester:revisions node --count $REVISIONS_CNT
 # Uninstall unneeded modules after generation
 $DCONSOLE module:uninstall performance_tester  -y
+
+# Save db for further testing
+$DRUSH sql-dump  --result-file=${DIR}/sql_dumps/core-${dt}.sql
 
 CSV_EXTRA="${ENTITY_CNT},${REVISIONS_CNT},core"
 # Make requests 2x logged out. 1 cold cache. 1 warm cache
@@ -67,6 +72,9 @@ $DCONSOLE performance_tester:revisions taxonomy_term --count $REVISIONS_CNT
 $DCONSOLE performance_tester:revisions user --count $REVISIONS_CNT
 # Uninstall unneeded modules after revisions
 $DCONSOLE module:uninstall performance_tester  -y
+
+# Save db for further testing
+$DRUSH sql-dump  --result-file=${DIR}/sql_dumps/mu-${dt}.sql
 
 
 CSV_EXTRA="${ENTITY_CNT},${REVISIONS_CNT},multiversion"
