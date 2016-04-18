@@ -4,4 +4,5 @@ output*
 node_modules
 results-files
 xhprof-files
+sql_dumps
 .DS_STORE
